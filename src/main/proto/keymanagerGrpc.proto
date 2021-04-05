@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.zup";
+option java_outer_classname = "KeymanagerGrpc";
+
+import "google/protobuf/timestamp.proto";
+
+package br.com.zup;
+
+service KeymanagerCadastraGrpcService {
+  rpc cadastrarChave (CadastrarChaveRequest) returns (CadastrarChaveReply) {}
+}
+
+service KeymanagerRemoveGrpcService {
+  rpc removerChave (RemoverChaveRequest) returns (RemoverChaveReply) {}
+}
+
+service KeymanagerDetalhaGrpcService {
+  rpc detalharChave (DetalharChaveRequest) returns (DetalharChaveReply) {}
+}
+
+service KeymanagerListaGrpcService {
+  rpc listarChaves (ListarChavesRequest) returns (ListarChavesReply) {}
+}
+
+/**
+    CADASTRAR CHAVE
+ */
+message CadastrarChaveRequest {
+  string cliente = 1;
+  ChaveEnum tipoChave = 2;
+  string valorChave = 3;
+  ContaEnum tipoConta = 4;
+}
+
+message CadastrarChaveReply {
+  string pixId = 1;
+}
+
+enum ChaveEnum {
+  CHAVE_DESCONHECIDA = 0;
+  CPF = 1;
+  CELULAR = 2;
+  EMAIL = 3;
+  ALEATORIO = 4;
+}
+
+enum ContaEnum {
+  CONTA_DESCONHECIDA = 0;
+  CONTA_CORRENTE = 1;
+  CONTA_POUPANCA = 2;
+}
+
+/**
+    REMOVER CHAVE
+ */
+
+message RemoverChaveRequest {
+  string pixId = 1;
+  string clienteId = 2;
+}
+
+message RemoverChaveReply {
+  string pixId = 1;
+}
+
+/**
+    DETALHAR CHAVE
+ */
+
+message DetalharChaveRequest {
+
+  message FiltroPorPixId {
+    string clienteId = 1;
+    string pixId = 2;
+  }
+
+  oneof filtro {
+    FiltroPorPixId pixId = 1;
+    string chave = 2;
+  }
+}
+
+message DetalharChaveReply {
+
+  string clienteId = 1;
+  string pixId = 2;
+  ChavePix chave = 3;
+
+  message ChavePix {
+
+    ChaveEnum tipo = 1;
+    string chave = 2;
+    ContaInfo conta = 3;
+    google.protobuf.Timestamp criadaEm = 4;
+
+    message ContaInfo {
+      ContaEnum tipo = 1;
+      string instituicao = 2;
+      string nomeTitular = 3;
+      string cpfTitular = 4;
+      string agencia = 5;
+      string numeroConta = 6;
+    }
+
+  }
+}
+
+/**
+  LISTAR CHAVES
+ */
+
+message ListarChavesRequest {
+  string clienteId = 1;
+}
+
+message ListarChavesReply {
+
+  string clienteId = 1;
+  repeated ChavesPix chaves = 2;
+
+  message ChavesPix {
+    string pixId = 1;
+    ChaveEnum tipo = 2;
+    string chave = 3;
+    ContaEnum tipoConta = 4;
+    google.protobuf.Timestamp criadaEm = 5;
+  }
+}
